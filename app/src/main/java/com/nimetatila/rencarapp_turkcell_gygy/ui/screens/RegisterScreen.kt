@@ -25,9 +25,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.nimetatila.rencarapp_turkcell_gygy.ui.icons.RencarIcons
+import com.nimetatila.rencarapp_turkcell_gygy.ui.icons.RenCarAppIcons
 import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.LocalRencarSpacing
-import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.RencarTheme
+import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.RenCarAppTheme
 import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.RegisterEffect
 import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.RegisterIntent
 import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.RegisterState
@@ -114,7 +114,7 @@ fun RegisterScreenContent(
                         )
                 ) {
                     Icon(
-                        imageVector = RencarIcons.ArrowBack,
+                        imageVector = RenCarAppIcons.ArrowBack,
                         contentDescription = "Geri Dön",
                         tint = MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier.size(18.dp)
@@ -292,7 +292,7 @@ fun RegisterScreenContent(
                     trailingIcon = {
                         IconButton(onClick = { onIntent(RegisterIntent.TogglePasswordVisibility) }) {
                             Icon(
-                                imageVector = if (state.passwordVisible) RencarIcons.VisibilityOff else RencarIcons.Visibility,
+                                imageVector = if (state.passwordVisible) RenCarAppIcons.VisibilityOff else RenCarAppIcons.Visibility,
                                 contentDescription = if (state.passwordVisible) "Şifreyi gizle" else "Şifreyi göster"
                             )
                         }
@@ -399,7 +399,7 @@ fun RegisterScreenContent(
 @Preview(showBackground = true, name = "Light Theme")
 @Composable
 fun RegisterScreenLightPreview() {
-    RencarTheme(darkTheme = false) {
+    RenCarAppTheme(darkTheme = false) {
         RegisterScreenContent(
             state = RegisterState(),
             onIntent = {},
@@ -412,7 +412,7 @@ fun RegisterScreenLightPreview() {
 @Preview(showBackground = true, name = "Dark Theme")
 @Composable
 fun RegisterScreenDarkPreview() {
-    RencarTheme(darkTheme = true) {
+    RenCarAppTheme(darkTheme = true) {
         RegisterScreenContent(
             state = RegisterState(),
             onIntent = {},

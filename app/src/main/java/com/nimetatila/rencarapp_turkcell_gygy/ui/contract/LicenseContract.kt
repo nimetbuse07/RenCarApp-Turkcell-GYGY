@@ -1,6 +1,5 @@
 package com.nimetatila.rencarapp_turkcell_gygy.contract
 
-
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.compose.runtime.Stable

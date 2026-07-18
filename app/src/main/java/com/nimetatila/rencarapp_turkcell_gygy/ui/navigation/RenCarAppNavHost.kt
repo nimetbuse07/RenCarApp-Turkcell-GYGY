@@ -208,7 +208,7 @@ fun RenCarAppNavHost(
         ) { backStackEntry ->
             val rentalId = backStackEntry.arguments?.getString("rentalId") ?: ""
             com.nimetatila.rencarapp_turkcell_gygy.ui.screens.PaymentSummaryScreen(
-                rentalId = rentalId,s
+                rentalId = rentalId,
                 onPaymentSuccess = {
                     navController.navigate(Screen.MainDashboard.route) {
                         popUpTo(Screen.Splash.route) { inclusive = true }

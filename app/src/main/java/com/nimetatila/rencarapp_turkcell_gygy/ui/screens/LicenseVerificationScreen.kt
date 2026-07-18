@@ -41,10 +41,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.nimetatila.rencarapp_turkcell_gygy.ui.R
-import com.nimetatila.rencarapp_turkcell_gygy.ui.icons.RencarIcons
+import com.nimetatila.rencarapp_turkcell_gygy.ui.icons.RenCarAppIcons
 import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.LocalRencarSpacing
 import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.LocalRencarColors
-import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.RencarTheme
+import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.RenCarAppTheme
 import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.LicenseEffect
 import com.nimetatila.rencarapp_turkcell_gygy.ui.LicenseIntent
 import com.nimetatila.rencarapp_turkcell_gygy.ui.LicenseState

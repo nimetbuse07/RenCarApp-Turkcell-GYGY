@@ -29,7 +29,7 @@ import com.nimetatila.rencarapp_turkcell_gygy.data.wallet.WalletTransactionDto
 import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.WalletEffect
 import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.WalletIntent
 import com.nimetatila.rencarapp_turkcell_gygy.contract.WalletState
-import com.nimetatila.rencarapp_turkcell_gygy.ui.icons.RencarIcons
+import com.nimetatila.rencarapp_turkcell_gygy.ui.icons.RenCarAppIcons
 import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.LocalRencarSpacing
 import com.nimetatila.rencarapp_turkcell_gygy.ui.viewmodel.WalletViewModel
 import java.util.Locale
@@ -315,7 +315,7 @@ fun BalanceGradientCard(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Icon(
-                        imageVector = RencarIcons.AddBalance,
+                        imageVector = RenCarAppIcons.AddBalance,
                         contentDescription = null,
                         modifier = Modifier.size(16.dp)
                     )
@@ -446,7 +446,7 @@ fun TransactionItem(transaction: WalletTransactionDto) {
                 val isNegative = transaction.amount < 0
                 val iconBg = if (isNegative) Color(0xFFFEE2E2) else Color(0xFFDCFCE7)
                 val iconTint = if (isNegative) Color(0xFFEF4444) else Color(0xFF22C55E)
-                val icon = if (isNegative) RencarIcons.Car else RencarIcons.AddBalance
+                val icon = if (isNegative) RenCarAppIcons.Car else RenCarAppIcons.AddBalance
 
                 Box(
                     modifier = Modifier
