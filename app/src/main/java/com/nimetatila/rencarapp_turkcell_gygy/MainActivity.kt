@@ -5,24 +5,50 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.RenCarAppTurkcellGYGYTheme
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.compose.rememberNavController
+import com.nimetatila.rencarapp_turkcell_gygy.data.preferences.ThemePreferenceRepository
+import com.nimetatila.rencarapp_turkcell_gygy.ui.navigation.RenCarAppNavHost
+import com.nimetatila.rencarapp_turkcell_gygy.ui.screens.SplashScreen
+import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.RenCarAppTheme
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var themePreferenceRepository: ThemePreferenceRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            RenCarAppTurkcellGYGYTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
+            val isDarkTheme by themePreferenceRepository.isDarkTheme.collectAsState(initial = true)
+
+            RenCarAppTheme(darkTheme = isDarkTheme) {
+                val navController = rememberNavController()
+
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    RenCarAppNavHost(
+                        navController = navController,
+                        isDarkTheme = isDarkTheme,
+                        onThemeToggle = {
+                            lifecycleScope.launch {
+                                themePreferenceRepository.setDarkTheme(!isDarkTheme)
+                            }
+                        }
                     )
                 }
             }
@@ -30,18 +56,14 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@Preview(showBackground = true, name = "Welcome Screen Preview")
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    RenCarAppTurkcellGYGYTheme {
-        Greeting("Android")
+fun AppWelcomePreview() {
+    RenCarAppTheme {
+        SplashScreen(
+            onRegisterClick = {},
+            onLoginClick = {},
+            isDarkTheme = false
+        )
     }
 }

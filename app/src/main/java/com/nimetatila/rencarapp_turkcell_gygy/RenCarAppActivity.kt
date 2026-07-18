@@ -1,4 +1,8 @@
 package com.nimetatila.rencarapp_turkcell_gygy
 
-class RenCarAppActivity {
-}
+
+import android.app.Application
+import dagger.hilt.android.HiltAndroidApp
+
+@HiltAndroidApp
+class RenCarApplication : Application()
