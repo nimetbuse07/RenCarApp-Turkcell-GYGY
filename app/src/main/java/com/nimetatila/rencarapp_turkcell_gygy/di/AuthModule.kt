@@ -37,7 +37,7 @@ abstract class AuthModule {
     @Singleton
     abstract fun bindRentalRepository(
         rentalRepositoryImpl: com.nimetatila.rencarapp_turkcell_gygy.data.rental.RentalRepositoryImpl
-    ): com.turkcell.rencarapp.data.rental.RentalRepository
+    ): com.nimetatila.rencarapp_turkcell_gygy.data.rental.RentalRepository
 
     @Binds
     @Singleton
