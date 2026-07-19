@@ -6,10 +6,10 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nimetatila.rencarapp_turkcell_gygy.contract.LicenseEffect
+import com.nimetatila.rencarapp_turkcell_gygy.contract.LicenseIntent
+import com.nimetatila.rencarapp_turkcell_gygy.contract.LicenseState
 import com.nimetatila.rencarapp_turkcell_gygy.data.license.LicenseRepository
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.LicenseEffect
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.LicenseIntent
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.LicenseState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel

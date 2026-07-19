@@ -40,15 +40,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.nimetatila.rencarapp_turkcell_gygy.ui.R
+import com.nimetatila.rencarapp_turkcell_gygy.contract.LicenseIntent
+import com.nimetatila.rencarapp_turkcell_gygy.contract.LicenseState
 import com.nimetatila.rencarapp_turkcell_gygy.ui.icons.RenCarAppIcons
 import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.LocalRencarSpacing
 import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.LocalRencarColors
 import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.RenCarAppTheme
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.LicenseEffect
-import com.nimetatila.rencarapp_turkcell_gygy.ui.LicenseIntent
-import com.nimetatila.rencarapp_turkcell_gygy.ui.LicenseState
-import com.nimetatila.rencarapp_turkcell_gygy.ui.LicenseViewModel
+import com.nimetatila.rencarapp_turkcell_gygy.ui.viewmodel.LicenseViewModel
 
 @Composable
 fun LicenseVerificationScreen(
@@ -191,7 +189,7 @@ fun LicenseVerificationScreenContent(
                         )
                 ) {
                     Icon(
-                        imageVector = RencarIcons.ArrowBack,
+                        imageVector = RenCarAppIcons.ArrowBack,
                         contentDescription = "Geri Dön",
                         tint = MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier.size(18.dp)
@@ -243,7 +241,7 @@ fun LicenseVerificationScreenContent(
                                 .background(Color(0xFFE6F4EA))
                         ) {
                             Icon(
-                                imageVector = RencarIcons.Check,
+                                imageVector = RenCarAppIcons.Check,
                                 contentDescription = null,
                                 tint = Color(0xFF10B981),
                                 modifier = Modifier.size(40.dp)
@@ -295,7 +293,7 @@ fun LicenseVerificationScreenContent(
                                 .background(Color(0xFFFEF3C7))
                         ) {
                             Icon(
-                                imageVector = RencarIcons.Shield,
+                                imageVector = RenCarAppIcons.Shield,
                                 contentDescription = null,
                                 tint = Color(0xFFD97706),
                                 modifier = Modifier.size(40.dp)
@@ -389,7 +387,7 @@ fun LicenseVerificationScreenContent(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            imageVector = RencarIcons.Camera,
+                            imageVector = RenCarAppIcons.Camera,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(24.dp)
@@ -419,7 +417,7 @@ fun LicenseVerificationScreenContent(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            imageVector = RencarIcons.Upload,
+                            imageVector = RenCarAppIcons.Upload,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(24.dp)
@@ -440,7 +438,7 @@ fun LicenseVerificationScreenContent(
 @Composable
 fun UploadFlowContent(
     isDark: Boolean,
-    spacing: com.turkcell.rencarapp.ui.theme.RencarSpacing,
+    spacing: com.nimetatila.rencarapp_turkcell_gygy.ui.theme.RencarSpacing,
     rejectReason: String?,
     frontBitmap: Bitmap?,
     backBitmap: Bitmap?,
@@ -608,7 +606,7 @@ fun UploadFlowContent(
                             .background(MaterialTheme.colorScheme.primaryContainer)
                     ) {
                         Icon(
-                            imageVector = RencarIcons.Camera,
+                            imageVector = RenCarAppIcons.Camera,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(20.dp)
@@ -679,7 +677,7 @@ fun UploadFlowContent(
                             .background(MaterialTheme.colorScheme.primaryContainer)
                     ) {
                         Icon(
-                            imageVector = RencarIcons.Camera,
+                            imageVector = RenCarAppIcons.Camera,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(20.dp)
@@ -709,7 +707,7 @@ fun UploadFlowContent(
                 verticalAlignment = Alignment.Top
             ) {
                 Icon(
-                    imageVector = RencarIcons.Info,
+                    imageVector = RenCarAppIcons.Info,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
@@ -780,7 +778,7 @@ private fun rememberInfoText() = remember {
 @Preview(showBackground = true, name = "Light Theme")
 @Composable
 fun LicenseVerificationScreenLightPreview() {
-    RencarTheme(darkTheme = false) {
+    RenCarAppTheme(darkTheme = false) {
         LicenseVerificationScreenContent(
             state = LicenseState(),
             onIntent = {},
@@ -793,7 +791,7 @@ fun LicenseVerificationScreenLightPreview() {
 @Preview(showBackground = true, name = "Dark Theme")
 @Composable
 fun LicenseVerificationScreenDarkPreview() {
-    RencarTheme(darkTheme = true) {
+    RenCarAppTheme(darkTheme = true) {
         LicenseVerificationScreenContent(
             state = LicenseState(),
             onIntent = {},

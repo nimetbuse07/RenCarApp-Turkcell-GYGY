@@ -113,7 +113,7 @@ fun PaymentSummaryScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
-                                imageVector = RencarIcons.CheckCircle,
+                                imageVector = RenCarAppIcons.CheckCircle,
                                 contentDescription = null,
                                 tint = Color(0xFF22C55E),
                                 modifier = Modifier.size(40.dp)

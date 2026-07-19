@@ -53,11 +53,11 @@ import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.RenCarAppTheme
 import com.nimetatila.rencarapp_turkcell_gygy.ui.components.DashboardTab
 import com.nimetatila.rencarapp_turkcell_gygy.ui.components.RencarBottomNavigationBar
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.nimetatila.rencarapp_turkcell_gygy.contract.LicenseIntent
 import com.nimetatila.rencarapp_turkcell_gygy.ui.viewmodel.AuthViewModel
 import com.nimetatila.rencarapp_turkcell_gygy.ui.viewmodel.LicenseViewModel
 import com.nimetatila.rencarapp_turkcell_gygy.ui.viewmodel.VehicleViewModel
 import com.nimetatila.rencarapp_turkcell_gygy.data.vehicle.VehicleResponseDto
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.LicenseIntent
 import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.VehicleIntent
 import java.util.Locale
 
@@ -224,7 +224,7 @@ fun MapTabContent(onReserveClick: (String) -> Unit) {
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        RencarMap(
+        RenCarAppMap(
             myLocation = myLocation,
             modifier = Modifier.fillMaxSize(),
             controller = mapController,
@@ -282,7 +282,7 @@ fun MapTabContent(onReserveClick: (String) -> Unit) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = RencarIcons.LocationPin,
+                    imageVector = RenCarAppIcons.LocationPin,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(20.dp)
@@ -303,7 +303,7 @@ fun MapTabContent(onReserveClick: (String) -> Unit) {
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = RencarIcons.Filter,
+                        imageVector = RenCarAppIcons.Filter,
                         contentDescription = "Filtrele",
                         tint = MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier.size(16.dp)
@@ -852,7 +852,7 @@ fun VehicleDetailSheet(
                 // Vites
                 val transVal = if (vehicle.transmission.lowercase() == "manual") "Manuel" else "Otomatik"
                 StatCard(
-                    icon = RencarIcons.Transmission,
+                    icon = RenCarAppIcons.Transmission,
                     label = "Vites",
                     value = transVal,
                     modifier = Modifier.weight(1f)

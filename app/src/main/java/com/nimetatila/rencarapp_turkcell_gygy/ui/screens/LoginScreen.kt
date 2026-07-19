@@ -29,7 +29,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.nimetatila.rencarapp_turkcell_gygy.ui.icons.RenCarAppIcons
 import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.LocalRencarSpacing
-import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.RencarTheme
+import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.RenCarAppTheme
 import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.LoginEffect
 import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.LoginIntent
 import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.LoginState
@@ -116,7 +116,7 @@ fun LoginScreenContent(
                         )
                 ) {
                     Icon(
-                        imageVector = RencarIcons.ArrowBack,
+                        imageVector = RenCarAppIcons.ArrowBack,
                         contentDescription = "Geri Dön",
                         tint = MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier.size(18.dp)
@@ -227,7 +227,7 @@ fun LoginScreenContent(
                 verticalAlignment = Alignment.Top
             ) {
                 Icon(
-                    imageVector = RencarIcons.Info,
+                    imageVector = RenCarAppIcons.Info,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier
@@ -277,7 +277,7 @@ fun LoginScreenContent(
                         horizontalArrangement = Arrangement.Center
                     ) {
                         Icon(
-                            imageVector = RencarIcons.Sms,
+                            imageVector = RenCarAppIcons.Sms,
                             contentDescription = null,
                             modifier = Modifier.size(20.dp)
                         )
@@ -359,7 +359,7 @@ class PhoneVisualTransformation : VisualTransformation {
 @Preview(showBackground = true, name = "Light Theme")
 @Composable
 fun LoginScreenLightPreview() {
-    RencarTheme(darkTheme = false) {
+    RenCarAppTheme(darkTheme = false) {
         LoginScreenContent(
             state = LoginState(),
             onIntent = {},
@@ -372,7 +372,7 @@ fun LoginScreenLightPreview() {
 @Preview(showBackground = true, name = "Dark Theme")
 @Composable
 fun LoginScreenDarkPreview() {
-    RencarTheme(darkTheme = true) {
+    RenCarAppTheme(darkTheme = true) {
         LoginScreenContent(
             state = LoginState(),
             onIntent = {},

@@ -44,14 +44,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.nimetatila.rencarapp_turkcell_gygy.contract.LicenseEffect
+import com.nimetatila.rencarapp_turkcell_gygy.contract.LicenseIntent
+import com.nimetatila.rencarapp_turkcell_gygy.contract.LicenseState
 import com.nimetatila.rencarapp_turkcell_gygy.ui.icons.RenCarAppIcons
 import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.LocalRencarSpacing
 import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.LocalRencarColors
 import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.RenCarAppTheme
 import com.nimetatila.rencarapp_turkcell_gygy.ui.viewmodel.LicenseViewModel
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.LicenseIntent
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.LicenseEffect
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.LicenseState
 
 @Composable
 fun SelfieVerificationScreen(

@@ -28,7 +28,6 @@ import com.nimetatila.rencarapp_turkcell_gygy.data.card.CardResponseDto
 import com.nimetatila.rencarapp_turkcell_gygy.data.wallet.WalletTransactionDto
 import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.WalletEffect
 import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.WalletIntent
-import com.nimetatila.rencarapp_turkcell_gygy.contract.WalletState
 import com.nimetatila.rencarapp_turkcell_gygy.ui.icons.RenCarAppIcons
 import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.LocalRencarSpacing
 import com.nimetatila.rencarapp_turkcell_gygy.ui.viewmodel.WalletViewModel
