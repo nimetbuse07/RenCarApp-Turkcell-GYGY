@@ -1,4 +1,4 @@
-package com.nimetatila.rencarapp_turkcell_gygy.ui.contract
+package com.nimetatila.rencarapp_turkcell_gygy.ui.intent
 
 import androidx.compose.runtime.Stable
 

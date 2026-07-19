@@ -1,4 +1,4 @@
-package com.nimetatila.rencarapp_turkcell_gygy.data.preferences
+package com.nimetatila.rencarapp_turkcell_gygy.data.local
 
 import android.content.Context
 import androidx.datastore.core.DataStore
@@ -38,3 +38,4 @@ class ThemePreferenceRepository @Inject constructor(
         }
     }
 }
+

@@ -66,7 +66,7 @@ class RencarMapController internal constructor() {
 fun rememberRencarMapController(): RencarMapController = remember { RencarMapController() }
 
 @Composable
-fun RenCarAppMap(
+fun RencarMap(
     myLocation: LatLng?,
     modifier: Modifier = Modifier,
     initialCenter: LatLng = DEFAULT_CENTER,

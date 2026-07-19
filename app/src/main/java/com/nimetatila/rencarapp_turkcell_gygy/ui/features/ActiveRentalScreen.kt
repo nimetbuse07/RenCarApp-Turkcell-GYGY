@@ -1,4 +1,4 @@
-package com.nimetatila.rencarapp_turkcell_gygy.ui.screens
+package com.nimetatila.rencarapp_turkcell_gygy.ui.features
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -17,10 +17,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.nimetatila.rencarapp_turkcell_gygy.ui.components.RenCarAppMap
+import com.nimetatila.rencarapp_turkcell_gygy.ui.components.RencarMap
 import com.nimetatila.rencarapp_turkcell_gygy.ui.components.rememberRencarMapController
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.ActiveRentalEffect
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.ActiveRentalIntent
+import com.nimetatila.rencarapp_turkcell_gygy.ui.intent.ActiveRentalEffect
+import com.nimetatila.rencarapp_turkcell_gygy.ui.intent.ActiveRentalIntent
 import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.LocalRencarSpacing
 import com.nimetatila.rencarapp_turkcell_gygy.ui.viewmodel.ActiveRentalViewModel
 import org.maplibre.android.geometry.LatLng
@@ -30,6 +30,7 @@ import java.util.Locale
 fun ActiveRentalScreen(
     rentalId: String,
     onEndSuccess: (String) -> Unit,
+    onMinimizeClick: () -> Unit,
     viewModel: ActiveRentalViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
@@ -89,7 +90,7 @@ fun ActiveRentalScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
         // 1. Map
-        RenCarAppMap(
+        RencarMap(
             myLocation = carLatLng, // Draws blue dot on the car
             modifier = Modifier.fillMaxSize(),
             controller = mapController,
@@ -109,10 +110,21 @@ fun ActiveRentalScreen(
                         color = MaterialTheme.colorScheme.surface,
                         shape = RoundedCornerShape(100.dp)
                     )
-                    .padding(horizontal = spacing.md, vertical = 10.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
+                    .padding(horizontal = spacing.sm, vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                IconButton(
+                    onClick = onMinimizeClick,
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Icon(
+                        imageVector = com.nimetatila.rencarapp_turkcell_gygy.ui.icons.RenCarAppIcons.ArrowBack,
+                        contentDescription = "Küçült",
+                        tint = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.width(spacing.xs))
                 // Green pulsating dot indicator
                 Box(
                     modifier = Modifier
@@ -124,7 +136,8 @@ fun ActiveRentalScreen(
                 Text(
                     text = "Kiralama aktif - ${rental.vehicle.brand} ${rental.vehicle.model}",
                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f)
                 )
             }
         }

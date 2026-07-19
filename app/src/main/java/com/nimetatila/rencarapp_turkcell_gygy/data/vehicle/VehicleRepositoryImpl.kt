@@ -1,5 +1,4 @@
 package com.nimetatila.rencarapp_turkcell_gygy.data.vehicle
-
 import javax.inject.Inject
 
 class VehicleRepositoryImpl @Inject constructor(

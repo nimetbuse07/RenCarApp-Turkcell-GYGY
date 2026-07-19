@@ -1,8 +1,7 @@
-package com.nimetatila.rencarapp_turkcell_gygy.ui.screens
+package com.nimetatila.rencarapp_turkcell_gygy.ui.features
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
@@ -13,13 +12,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.nimetatila.rencarapp_turkcell_gygy.R
 import com.nimetatila.rencarapp_turkcell_gygy.ui.icons.RenCarAppIcons
 import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.Blue50
 import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.Blue800
@@ -200,7 +196,7 @@ fun SplashScreen(
 
 @Preview(showBackground = true, name = "Light Theme")
 @Composable
-fun SplashScreenLightPreview() {
+fun WelcomeScreenLightPreview() {
     RenCarAppTheme(darkTheme = false) {
         SplashScreen(
             onRegisterClick = {},

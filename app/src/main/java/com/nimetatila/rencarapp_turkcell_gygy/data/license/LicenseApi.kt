@@ -1,6 +1,5 @@
 package com.nimetatila.rencarapp_turkcell_gygy.data.license
 
-
 import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.GET

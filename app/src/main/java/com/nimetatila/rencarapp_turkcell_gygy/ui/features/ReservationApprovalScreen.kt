@@ -1,4 +1,4 @@
-package com.nimetatila.rencarapp_turkcell_gygy.ui.screens
+package com.nimetatila.rencarapp_turkcell_gygy.ui.features
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -19,8 +19,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.ReservationEffect
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.ReservationIntent
+import com.nimetatila.rencarapp_turkcell_gygy.ui.intent.ReservationEffect
+import com.nimetatila.rencarapp_turkcell_gygy.ui.intent.ReservationIntent
 import com.nimetatila.rencarapp_turkcell_gygy.ui.icons.RenCarAppIcons
 import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.LocalRencarSpacing
 import com.nimetatila.rencarapp_turkcell_gygy.ui.viewmodel.ReservationViewModel

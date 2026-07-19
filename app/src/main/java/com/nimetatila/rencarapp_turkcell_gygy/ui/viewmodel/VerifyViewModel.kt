@@ -3,9 +3,9 @@ package com.nimetatila.rencarapp_turkcell_gygy.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nimetatila.rencarapp_turkcell_gygy.data.auth.AuthRepository
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.VerifyEffect
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.VerifyIntent
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.VerifyState
+import com.nimetatila.rencarapp_turkcell_gygy.ui.intent.VerifyEffect
+import com.nimetatila.rencarapp_turkcell_gygy.ui.intent.VerifyIntent
+import com.nimetatila.rencarapp_turkcell_gygy.ui.intent.VerifyState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow

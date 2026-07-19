@@ -2,12 +2,11 @@ package com.nimetatila.rencarapp_turkcell_gygy.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nimetatila.rencarapp_turkcell_gygy.data.rental.ActiveRentalResponseDto
 import com.nimetatila.rencarapp_turkcell_gygy.data.rental.RentalRepository
 import com.nimetatila.rencarapp_turkcell_gygy.data.rental.RideLocationClient
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.ActiveRentalIntent
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.ActiveRentalState
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.ActiveRentalEffect
+import com.nimetatila.rencarapp_turkcell_gygy.ui.intent.ActiveRentalIntent
+import com.nimetatila.rencarapp_turkcell_gygy.ui.intent.ActiveRentalState
+import com.nimetatila.rencarapp_turkcell_gygy.ui.intent.ActiveRentalEffect
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel

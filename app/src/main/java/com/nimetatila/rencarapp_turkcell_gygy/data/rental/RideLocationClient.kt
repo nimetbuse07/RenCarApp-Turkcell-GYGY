@@ -1,6 +1,5 @@
 package com.nimetatila.rencarapp_turkcell_gygy.data.rental
 
-
 import com.nimetatila.rencarapp_turkcell_gygy.data.auth.AuthRepository
 import io.socket.client.IO
 import io.socket.client.Socket

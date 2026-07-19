@@ -1,6 +1,6 @@
 package com.nimetatila.rencarapp_turkcell_gygy.data.auth
 
-import com.nimetatila.rencarapp_turkcell_gygy.data.preferences.AuthPreferencesRepository
+import com.nimetatila.rencarapp_turkcell_gygy.data.local.AuthPreferencesRepository
 import kotlinx.coroutines.flow.Flow
 import retrofit2.Response
 import javax.inject.Inject

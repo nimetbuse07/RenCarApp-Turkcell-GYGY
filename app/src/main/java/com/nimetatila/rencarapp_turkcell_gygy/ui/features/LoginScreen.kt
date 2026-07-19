@@ -1,9 +1,8 @@
-package com.nimetatila.rencarapp_turkcell_gygy.ui.screens
+package com.nimetatila.rencarapp_turkcell_gygy.ui.features
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -20,7 +19,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,9 +28,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.nimetatila.rencarapp_turkcell_gygy.ui.icons.RenCarAppIcons
 import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.LocalRencarSpacing
 import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.RenCarAppTheme
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.LoginEffect
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.LoginIntent
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.LoginState
+import com.nimetatila.rencarapp_turkcell_gygy.ui.intent.LoginEffect
+import com.nimetatila.rencarapp_turkcell_gygy.ui.intent.LoginIntent
+import com.nimetatila.rencarapp_turkcell_gygy.ui.intent.LoginState
 import com.nimetatila.rencarapp_turkcell_gygy.ui.viewmodel.LoginViewModel
 
 @Composable

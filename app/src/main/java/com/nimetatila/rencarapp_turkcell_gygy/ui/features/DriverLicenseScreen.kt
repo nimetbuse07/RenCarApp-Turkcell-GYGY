@@ -1,4 +1,4 @@
-package com.nimetatila.rencarapp_turkcell_gygy.ui.screens
+package com.nimetatila.rencarapp_turkcell_gygy.ui.features
 
 import android.widget.Toast
 import android.graphics.Bitmap
@@ -7,12 +7,10 @@ import java.io.File
 import androidx.core.content.FileProvider
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,10 +28,8 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -44,7 +40,6 @@ import com.nimetatila.rencarapp_turkcell_gygy.contract.LicenseIntent
 import com.nimetatila.rencarapp_turkcell_gygy.contract.LicenseState
 import com.nimetatila.rencarapp_turkcell_gygy.ui.icons.RenCarAppIcons
 import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.LocalRencarSpacing
-import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.LocalRencarColors
 import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.RenCarAppTheme
 import com.nimetatila.rencarapp_turkcell_gygy.ui.viewmodel.LicenseViewModel
 

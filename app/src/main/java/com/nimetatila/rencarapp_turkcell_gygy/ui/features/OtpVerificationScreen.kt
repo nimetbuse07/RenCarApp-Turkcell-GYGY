@@ -1,4 +1,5 @@
-package com.nimetatila.rencarapp_turkcell_gygy.ui.screens
+package com.nimetatila.rencarapp_turkcell_gygy.ui.features
+
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -26,15 +27,14 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.nimetatila.rencarapp_turkcell_gygy.ui.icons.RenCarAppIcons
 import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.LocalRencarSpacing
 import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.RenCarAppTheme
 import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.otpDigitTextStyle
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.VerifyEffect
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.VerifyIntent
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.VerifyState
+import com.nimetatila.rencarapp_turkcell_gygy.ui.intent.VerifyEffect
+import com.nimetatila.rencarapp_turkcell_gygy.ui.intent.VerifyIntent
+import com.nimetatila.rencarapp_turkcell_gygy.ui.intent.VerifyState
 import com.nimetatila.rencarapp_turkcell_gygy.ui.viewmodel.VerifyViewModel
 import kotlinx.coroutines.delay
 

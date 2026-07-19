@@ -1,5 +1,4 @@
-package com.nimetatila.rencarapp_turkcell_gygy.ui.screens
-
+package com.nimetatila.rencarapp_turkcell_gygy.ui.features
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -20,13 +19,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.nimetatila.rencarapp_turkcell_gygy.data.card.CardResponseDto
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.PaymentIntent
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.PaymentState
+import com.nimetatila.rencarapp_turkcell_gygy.ui.intent.PaymentIntent
 import com.nimetatila.rencarapp_turkcell_gygy.ui.icons.RenCarAppIcons
 import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.LocalRencarSpacing
-import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.RenCarAppTheme
 import com.nimetatila.rencarapp_turkcell_gygy.ui.viewmodel.PaymentViewModel
 import java.util.Locale
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import android.net.Uri
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
+
+private const val CALLBACK_PATH = "/iyzico/checkout-form/callback"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,14 +44,17 @@ fun PaymentSummaryScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val spacing = LocalRencarSpacing.current
+    val context = LocalContext.current
 
     LaunchedEffect(rentalId) {
         viewModel.onIntent(PaymentIntent.LoadDetails(rentalId))
         viewModel.onIntent(PaymentIntent.LoadCards)
+        viewModel.onIntent(PaymentIntent.LoadWallet)
     }
 
     LaunchedEffect(state.paymentSuccess) {
         if (state.paymentSuccess) {
+            Toast.makeText(context, "Ödeme başarıyla tamamlandı", Toast.LENGTH_LONG).show()
             onPaymentSuccess()
         }
     }
@@ -206,7 +216,7 @@ fun PaymentSummaryScreen(
                                     value = String.format(Locale.US, "-₺%.2f", rental.discountAmount),
                                     isGreen = true
                                 )
-                            } else if (state.discountCode.isNotBlank()) {
+                            } else if (state.discountCode.isNotBlank() && state.selectedPaymentMethod != "IYZICO") {
                                 // Show pending or applied discount simulation if they typed something
                                 Spacer(modifier = Modifier.height(14.dp))
                                 BreakdownRow(
@@ -224,7 +234,11 @@ fun PaymentSummaryScreen(
                             Spacer(modifier = Modifier.height(20.dp))
 
                             // Total Price
-                            val finalPrice = maxOf(0.0, totalPrice - (if (rental.discountAmount > 0.0) rental.discountAmount else if (state.discountCode.isNotBlank()) 20.0 else 0.0))
+                            val finalPrice = if (state.selectedPaymentMethod == "IYZICO") {
+                                totalPrice
+                            } else {
+                                maxOf(0.0, totalPrice - (if (rental.discountAmount > 0.0) rental.discountAmount else if (state.discountCode.isNotBlank()) 20.0 else 0.0))
+                            }
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -248,7 +262,7 @@ fun PaymentSummaryScreen(
                         Spacer(modifier = Modifier.height(32.dp))
 
                         // Discount Code Entry (if no discount applied yet)
-                        if (rental.discountAmount == 0.0 && state.discountCode.isBlank()) {
+                        if (rental.discountAmount == 0.0 && state.discountCode.isBlank() && state.selectedPaymentMethod != "IYZICO") {
                             OutlinedTextField(
                                 value = state.discountCode,
                                 onValueChange = { viewModel.onIntent(PaymentIntent.ChangeDiscountCode(it)) },
@@ -269,7 +283,9 @@ fun PaymentSummaryScreen(
 
                         // Payment Method Selection Card
                         PaymentMethodCard(
+                            paymentMethod = state.selectedPaymentMethod,
                             selectedCard = state.selectedCard,
+                            walletBalance = state.walletBalance,
                             onChangeClick = { showBottomSheet = true }
                         )
 
@@ -288,7 +304,11 @@ fun PaymentSummaryScreen(
 
                         // Pay Button
                         val totalPriceVal = rental.totalPrice ?: (rental.startFee + (rental.serviceFee ?: 0.0))
-                        val finalPriceVal = maxOf(0.0, totalPriceVal - (if (rental.discountAmount > 0.0) rental.discountAmount else if (state.discountCode.isNotBlank()) 20.0 else 0.0))
+                        val finalPriceVal = if (state.selectedPaymentMethod == "IYZICO") {
+                            totalPriceVal
+                        } else {
+                            maxOf(0.0, totalPriceVal - (if (rental.discountAmount > 0.0) rental.discountAmount else if (state.discountCode.isNotBlank()) 20.0 else 0.0))
+                        }
                         Button(
                             onClick = { viewModel.onIntent(PaymentIntent.PayRental) },
                             modifier = Modifier
@@ -327,7 +347,8 @@ fun PaymentSummaryScreen(
             onDismissRequest = { showBottomSheet = false },
             sheetState = rememberModalBottomSheetState(),
             containerColor = MaterialTheme.colorScheme.surface,
-            contentColor = MaterialTheme.colorScheme.onSurface
+            contentColor = MaterialTheme.colorScheme.onSurface,
+            shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -339,6 +360,150 @@ fun PaymentSummaryScreen(
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(vertical = 16.dp)
+                )
+
+                // Cüzdan Seçeneği
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(
+                            if (state.selectedPaymentMethod == "WALLET") MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
+                            else Color.Transparent
+                        )
+                        .clickable {
+                            viewModel.onIntent(PaymentIntent.SelectPaymentMethod("WALLET"))
+                            showBottomSheet = false
+                        }
+                        .padding(12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp, 26.dp)
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(MaterialTheme.colorScheme.primaryContainer),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = RenCarAppIcons.Wallet,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(12.dp))
+
+                        Column {
+                            Text(
+                                text = "Cüzdan",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = if (state.isWalletLoading) "Yükleniyor..." else String.format(Locale.US, "Bakiye: ₺%.2f", state.walletBalance),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+
+                    RadioButton(
+                        selected = state.selectedPaymentMethod == "WALLET",
+                        onClick = {
+                            viewModel.onIntent(PaymentIntent.SelectPaymentMethod("WALLET"))
+                            showBottomSheet = false
+                        },
+                        colors = RadioButtonDefaults.colors(
+                            selectedColor = MaterialTheme.colorScheme.primary
+                        )
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // İyzico Seçeneği
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(
+                            if (state.selectedPaymentMethod == "IYZICO") MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
+                            else Color.Transparent
+                        )
+                        .clickable {
+                            viewModel.onIntent(PaymentIntent.SelectPaymentMethod("IYZICO"))
+                            showBottomSheet = false
+                        }
+                        .padding(12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp, 26.dp)
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(Color(0xFFE4EBF7)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "iyzico",
+                                color = Color(0xFF0F62CD),
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(12.dp))
+
+                        Column {
+                            Text(
+                                text = "İyzico",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = "Kredi/Banka Kartı ile Güvenli Ödeme",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+
+                    RadioButton(
+                        selected = state.selectedPaymentMethod == "IYZICO",
+                        onClick = {
+                            viewModel.onIntent(PaymentIntent.SelectPaymentMethod("IYZICO"))
+                            showBottomSheet = false
+                        },
+                        colors = RadioButtonDefaults.colors(
+                            selectedColor = MaterialTheme.colorScheme.primary
+                        )
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "Kayıtlı Kartlar",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 8.dp)
                 )
 
                 if (state.isCardsLoading) {
@@ -353,20 +518,111 @@ fun PaymentSummaryScreen(
                         text = "Kayıtlı kartınız bulunmamaktadır.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(vertical = 24.dp)
+                        modifier = Modifier.padding(vertical = 12.dp)
                     )
                 } else {
                     state.cards.forEach { card ->
                         CardRow(
                             card = card,
-                            isSelected = state.selectedCard?.id == card.id,
+                            isSelected = state.selectedPaymentMethod == "CARD" && state.selectedCard?.id == card.id,
                             onClick = {
+                                viewModel.onIntent(PaymentIntent.SelectPaymentMethod("CARD"))
                                 viewModel.onIntent(PaymentIntent.SelectCard(card))
                                 showBottomSheet = false
                             }
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                     }
+                }
+            }
+        }
+    }
+
+    if (state.showWebView && state.webViewUrl != null) {
+        Dialog(
+            onDismissRequest = { viewModel.onIntent(PaymentIntent.CancelIyzicoPayment) },
+            properties = DialogProperties(
+                usePlatformDefaultWidth = false,
+                dismissOnBackPress = true,
+                dismissOnClickOutside = false
+            )
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.background
+            ) {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp)
+                            .background(MaterialTheme.colorScheme.surface)
+                            .padding(horizontal = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(onClick = { viewModel.onIntent(PaymentIntent.CancelIyzicoPayment) }) {
+                            Icon(
+                                imageVector = RenCarAppIcons.ArrowBack,
+                                contentDescription = "Geri",
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                        Text(
+                            text = "İyzico Güvenli Ödeme",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    }
+
+                    AndroidView(
+                        factory = { context ->
+                            WebView(context).apply {
+                                settings.javaScriptEnabled = true
+                                settings.domStorageEnabled = true
+                                settings.useWideViewPort = true
+                                settings.loadWithOverviewMode = true
+
+                                webViewClient = object : WebViewClient() {
+                                    override fun shouldOverrideUrlLoading(
+                                        view: WebView?,
+                                        url: String?
+                                    ): Boolean {
+                                        if (url != null && url.contains(CALLBACK_PATH)) {
+                                            val token = viewModel.state.value.iyzicoToken ?: Uri.parse(url).getQueryParameter("token")
+                                            if (token != null) {
+                                                viewModel.onIntent(PaymentIntent.CompleteIyzicoPayment(token))
+                                            } else {
+                                                viewModel.onIntent(PaymentIntent.CancelIyzicoPayment)
+                                            }
+                                            return true
+                                        }
+                                        return false
+                                    }
+
+                                    override fun onPageStarted(
+                                        view: WebView?,
+                                        url: String?,
+                                        favicon: android.graphics.Bitmap?
+                                    ) {
+                                        super.onPageStarted(view, url, favicon)
+                                        if (url != null && url.contains(CALLBACK_PATH)) {
+                                            val token = viewModel.state.value.iyzicoToken ?: Uri.parse(url).getQueryParameter("token")
+                                            if (token != null) {
+                                                viewModel.onIntent(PaymentIntent.CompleteIyzicoPayment(token))
+                                            } else {
+                                                viewModel.onIntent(PaymentIntent.CancelIyzicoPayment)
+                                            }
+                                        }
+                                    }
+                                }
+
+                                loadUrl(state.webViewUrl!!)
+                            }
+                        },
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
             }
         }
@@ -440,7 +696,9 @@ fun BreakdownRow(
 
 @Composable
 fun PaymentMethodCard(
+    paymentMethod: String,
     selectedCard: CardResponseDto?,
+    walletBalance: Double,
     onChangeClick: () -> Unit
 ) {
     Box(
@@ -466,36 +724,100 @@ fun PaymentMethodCard(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // VISA / Mastercard icon simulation
-                Box(
-                    modifier = Modifier
-                        .size(44.dp, 30.dp)
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(Color(0xFF0F172A)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = if (selectedCard?.brand == "MASTERCARD") "MC" else "VISA",
-                        color = Color.White,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+                if (paymentMethod == "WALLET") {
+                    Box(
+                        modifier = Modifier
+                            .size(44.dp, 30.dp)
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(MaterialTheme.colorScheme.primaryContainer),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = RenCarAppIcons.Wallet,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
 
-                Spacer(modifier = Modifier.width(16.dp))
+                    Spacer(modifier = Modifier.width(16.dp))
 
-                Column {
-                    Text(
-                        text = selectedCard?.let { "•••• ${it.last4}" } ?: "Ödeme Yöntemi Ekle",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = selectedCard?.let { "Kişisel kart" } ?: "Kayıtlı kart bulunamadı",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                    )
+                    Column {
+                        Text(
+                            text = "Cüzdan",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = String.format(Locale.US, "Bakiye: ₺%.2f", walletBalance),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        )
+                    }
+                } else if (paymentMethod == "IYZICO") {
+                    Box(
+                        modifier = Modifier
+                            .size(44.dp, 30.dp)
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(Color(0xFFE4EBF7)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "iyzico",
+                            color = Color(0xFF0F62CD),
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    Column {
+                        Text(
+                            text = "İyzico ile Öde",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = "Ortak ödeme sayfası",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        )
+                    }
+                } else {
+                    // VISA / Mastercard icon simulation
+                    Box(
+                        modifier = Modifier
+                            .size(44.dp, 30.dp)
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(Color(0xFF0F172A)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = if (selectedCard?.brand == "MASTERCARD") "MC" else "VISA",
+                            color = Color.White,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    Column {
+                        Text(
+                            text = selectedCard?.let { "•••• ${it.last4}" } ?: "Ödeme Yöntemi Ekle",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = selectedCard?.let { "Kişisel kart" } ?: "Kayıtlı kart bulunamadı",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        )
+                    }
                 }
             }
 

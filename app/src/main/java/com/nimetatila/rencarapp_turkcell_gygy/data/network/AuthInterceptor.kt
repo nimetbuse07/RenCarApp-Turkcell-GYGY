@@ -1,6 +1,6 @@
-package com.nimetatila.rencarapp_turkcell_gygy.data.remote
+package com.nimetatila.rencarapp_turkcell_gygy.data.network
 
-import com.nimetatila.rencarapp_turkcell_gygy.data.preferences.AuthPreferencesRepository
+import com.nimetatila.rencarapp_turkcell_gygy.data.local.AuthPreferencesRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor

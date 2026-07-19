@@ -1,6 +1,5 @@
 package com.nimetatila.rencarapp_turkcell_gygy.ui.icons
 
-
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector

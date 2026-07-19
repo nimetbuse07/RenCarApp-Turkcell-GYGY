@@ -1,4 +1,4 @@
-package com.nimetatila.rencarapp_turkcell_gygy.ui.screens
+package com.nimetatila.rencarapp_turkcell_gygy.ui.features
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -11,10 +11,8 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,11 +22,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -44,9 +39,8 @@ import androidx.core.content.ContextCompat
 import com.google.android.gms.location.*
 import com.google.android.gms.tasks.CancellationTokenSource
 import org.maplibre.android.geometry.LatLng
-import com.nimetatila.rencarapp_turkcell_gygy.ui.components.RenCarAppMap
+import com.nimetatila.rencarapp_turkcell_gygy.ui.components.RencarMap
 import com.nimetatila.rencarapp_turkcell_gygy.ui.components.rememberRencarMapController
-import com.nimetatila.rencarapp_turkcell_gygy.ui.components.RencarMapController
 import com.nimetatila.rencarapp_turkcell_gygy.ui.icons.RenCarAppIcons
 import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.LocalRencarSpacing
 import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.RenCarAppTheme
@@ -58,7 +52,7 @@ import com.nimetatila.rencarapp_turkcell_gygy.ui.viewmodel.AuthViewModel
 import com.nimetatila.rencarapp_turkcell_gygy.ui.viewmodel.LicenseViewModel
 import com.nimetatila.rencarapp_turkcell_gygy.ui.viewmodel.VehicleViewModel
 import com.nimetatila.rencarapp_turkcell_gygy.data.vehicle.VehicleResponseDto
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.VehicleIntent
+import com.nimetatila.rencarapp_turkcell_gygy.ui.intent.VehicleIntent
 import java.util.Locale
 
 @Composable
@@ -69,6 +63,9 @@ fun MainDashboardScreen(
     onLicenseClick: () -> Unit,
     onReserveClick: (String) -> Unit = {},
     onActiveRentalFound: (String) -> Unit = {},
+    isRentalInitiallyMinimized: Boolean = false,
+    onMinimizeRental: () -> Unit = {},
+    onExpandRental: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var currentTab by remember { mutableStateOf(DashboardTab.Map) }
@@ -81,9 +78,9 @@ fun MainDashboardScreen(
         activeRentalViewModel.checkActiveRental()
     }
 
-    LaunchedEffect(activeRentalState.rentalId) {
+    LaunchedEffect(activeRentalState.rentalId, isRentalInitiallyMinimized) {
         val rId = activeRentalState.rentalId
-        if (rId.isNotBlank()) {
+        if (rId.isNotBlank() && !isRentalInitiallyMinimized) {
             onActiveRentalFound(rId)
         }
     }
@@ -118,11 +115,12 @@ fun MainDashboardScreen(
                 .padding(paddingValues)
         ) {
             when (currentTab) {
-                DashboardTab.Map -> MapTabContent(onReserveClick = onReserveClick)
-                DashboardTab.History -> PaymentSummaryScreen(
-                    rentalId = "clx0rent1234567890",
-                    onPaymentSuccess = { currentTab = DashboardTab.Map }
+                DashboardTab.Map -> MapTabContent(
+                    onReserveClick = onReserveClick,
+                    activeRental = activeRentalState.activeRental,
+                    onExpandRentalClick = onExpandRental
                 )
+                DashboardTab.History -> VehicleRecordsScreen()
                 DashboardTab.Wallet -> WalletScreen()
                 DashboardTab.Profile -> ProfileScreen(
                     isDarkTheme = isDarkTheme,
@@ -144,7 +142,11 @@ fun MainDashboardScreen(
 
 
 @Composable
-fun MapTabContent(onReserveClick: (String) -> Unit) {
+fun MapTabContent(
+    onReserveClick: (String) -> Unit,
+    activeRental: com.nimetatila.rencarapp_turkcell_gygy.data.rental.ActiveRentalResponseDto? = null,
+    onExpandRentalClick: () -> Unit = {}
+) {
     val context = LocalContext.current
     val spacing = LocalRencarSpacing.current
     val density = LocalDensity.current
@@ -224,7 +226,7 @@ fun MapTabContent(onReserveClick: (String) -> Unit) {
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        RenCarAppMap(
+        RencarMap(
             myLocation = myLocation,
             modifier = Modifier.fillMaxSize(),
             controller = mapController,
@@ -340,210 +342,216 @@ fun MapTabContent(onReserveClick: (String) -> Unit) {
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
         ) {
-            if (selectedVehicle == null) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(end = spacing.md, bottom = spacing.md),
-                    contentAlignment = Alignment.CenterEnd
-                ) {
-                    FloatingActionButton(
-                        onClick = {
-                            if (hasLocationPermission) {
-                                fetchCurrentLocation(fusedClient) { target ->
-                                    myLocation = target
-                                    mapController.animateTo(target, zoom = 14.5)
-                                }
-                            } else {
-                                permissionLauncher.launch(
-                                    arrayOf(
-                                        Manifest.permission.ACCESS_FINE_LOCATION,
-                                        Manifest.permission.ACCESS_COARSE_LOCATION
-                                    )
-                                )
-                            }
-                        },
-                        modifier = Modifier.size(48.dp),
-                        shape = CircleShape,
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        contentColor = MaterialTheme.colorScheme.primary
-                    ) {
-                        Icon(
-                            imageVector = RenCarAppIcons.MyLocation,
-                            contentDescription = "Konumuma git"
-                        )
-                    }
-                }
-            }
-
-            androidx.compose.animation.AnimatedVisibility(
-                visible = selectedVehicle == null,
-                enter = androidx.compose.animation.slideInVertically(initialOffsetY = { it }),
-                exit = androidx.compose.animation.slideOutVertically(targetOffsetY = { it })
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .shadow(
-                            elevation = 16.dp,
-                            shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-                            clip = false
-                        )
-                        .background(
-                            color = MaterialTheme.colorScheme.surface,
-                            shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
-                        )
-                        .padding(horizontal = spacing.md, vertical = spacing.sm)
-                ) {
+            if (activeRental != null) {
+                ActiveRentalMinimizedCard(
+                    activeRental = activeRental,
+                    onExpandClick = onExpandRentalClick
+                )
+            } else {
+                if (selectedVehicle == null) {
                     Box(
                         modifier = Modifier
-                            .size(40.dp, 4.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
-                            .align(Alignment.CenterHorizontally)
-                    )
-
-                    Spacer(modifier = Modifier.height(spacing.sm))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
+                            .fillMaxWidth()
+                            .padding(end = spacing.md, bottom = spacing.md),
+                        contentAlignment = Alignment.CenterEnd
                     ) {
-                        Column {
-                            val count = filteredVehicles.count { it.status == "AVAILABLE" }
-                            Text(
-                                text = "Yakınında $count araç",
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
-                            Text(
-                                text = "Kadıköy çevresinde · 3 dk uzaklıkta",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-
-                        Box(
-                            modifier = Modifier
-                                .size(44.dp)
-                                .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.surfaceVariant),
-                            contentAlignment = Alignment.Center
+                        FloatingActionButton(
+                            onClick = {
+                                if (hasLocationPermission) {
+                                    fetchCurrentLocation(fusedClient) { target ->
+                                        myLocation = target
+                                        mapController.animateTo(target, zoom = 14.5)
+                                    }
+                                } else {
+                                    permissionLauncher.launch(
+                                        arrayOf(
+                                            Manifest.permission.ACCESS_FINE_LOCATION,
+                                            Manifest.permission.ACCESS_COARSE_LOCATION
+                                        )
+                                    )
+                                }
+                            },
+                            modifier = Modifier.size(48.dp),
+                            shape = CircleShape,
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            contentColor = MaterialTheme.colorScheme.primary
                         ) {
                             Icon(
-                                imageVector = RenCarAppIcons.Filter,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onBackground,
-                                modifier = Modifier.size(18.dp)
+                                imageVector = RenCarAppIcons.MyLocation,
+                                contentDescription = "Konumuma git"
                             )
                         }
                     }
+                }
 
-                    Spacer(modifier = Modifier.height(spacing.md))
-
-                    LazyRow(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(spacing.xs)
-                    ) {
-                        item {
-                            CategoryChip(
-                                text = "Tümü",
-                                isSelected = selectedSegment == null,
-                                indicatorColor = null,
-                                onClick = { selectedSegment = null }
-                            )
-                        }
-                        item {
-                            CategoryChip(
-                                text = "Ekonomik",
-                                isSelected = selectedSegment == "ECONOMY",
-                                indicatorColor = Color(0xFFF97316),
-                                onClick = { selectedSegment = "ECONOMY" }
-                            )
-                        }
-                        item {
-                            CategoryChip(
-                                text = "Konfor",
-                                isSelected = selectedSegment == "COMFORT",
-                                indicatorColor = Color(0xFF8B5CF6),
-                                onClick = { selectedSegment = "COMFORT" }
-                            )
-                        }
-                        item {
-                            CategoryChip(
-                                text = "SUV",
-                                isSelected = selectedSegment == "SUV",
-                                indicatorColor = Color(0xFFEAB308),
-                                onClick = { selectedSegment = "SUV" }
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(spacing.md))
-
-                    Button(
-                        onClick = {
-                            val currentLoc = myLocation
-                            if (currentLoc != null && filteredVehicles.isNotEmpty()) {
-                                val nearest = filteredVehicles
-                                    .filter { it.status == "AVAILABLE" }
-                                    .minByOrNull { vehicle ->
-                                        calculateDistance(
-                                            currentLoc.latitude, currentLoc.longitude,
-                                            vehicle.latitude, vehicle.longitude
-                                        )
-                                    }
-                                if (nearest != null) {
-                                    vehicleViewModel.onIntent(VehicleIntent.SelectVehicle(nearest.id))
-                                }
-                            }
-                        },
+                androidx.compose.animation.AnimatedVisibility(
+                    visible = selectedVehicle == null,
+                    enter = androidx.compose.animation.slideInVertically(initialOffsetY = { it }),
+                    exit = androidx.compose.animation.slideOutVertically(targetOffsetY = { it })
+                ) {
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(56.dp),
-                        shape = MaterialTheme.shapes.extraLarge,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary
-                        )
+                            .shadow(
+                                elevation = 16.dp,
+                                shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+                                clip = false
+                            )
+                            .background(
+                                color = MaterialTheme.colorScheme.surface,
+                                shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+                            )
+                            .padding(horizontal = spacing.md, vertical = spacing.sm)
                     ) {
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp, 4.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+                                .align(Alignment.CenterHorizontally)
+                        )
+
+                        Spacer(modifier = Modifier.height(spacing.sm))
+
                         Row(
+                            modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
+                            horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Icon(
-                                imageVector = RenCarAppIcons.LocationPin,
-                                contentDescription = null,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(modifier = Modifier.width(spacing.xs))
-                            Text(
-                                text = "En Yakın Aracı Bul",
-                                style = MaterialTheme.typography.labelLarge
-                            )
+                            Column {
+                                val count = filteredVehicles.count { it.status == "AVAILABLE" }
+                                Text(
+                                    text = "Yakınında $count araç",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onBackground
+                                )
+                                Text(
+                                    text = "Kadıköy çevresinde · 3 dk uzaklıkta",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+
+                            Box(
+                                modifier = Modifier
+                                    .size(44.dp)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = RenCarAppIcons.Filter,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onBackground,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
                         }
+
+                        Spacer(modifier = Modifier.height(spacing.md))
+
+                        LazyRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(spacing.xs)
+                        ) {
+                            item {
+                                CategoryChip(
+                                    text = "Tümü",
+                                    isSelected = selectedSegment == null,
+                                    indicatorColor = null,
+                                    onClick = { selectedSegment = null }
+                                )
+                            }
+                            item {
+                                CategoryChip(
+                                    text = "Ekonomik",
+                                    isSelected = selectedSegment == "ECONOMY",
+                                    indicatorColor = Color(0xFFF97316),
+                                    onClick = { selectedSegment = "ECONOMY" }
+                                )
+                            }
+                            item {
+                                CategoryChip(
+                                    text = "Konfor",
+                                    isSelected = selectedSegment == "COMFORT",
+                                    indicatorColor = Color(0xFF8B5CF6),
+                                    onClick = { selectedSegment = "COMFORT" }
+                                )
+                            }
+                            item {
+                                CategoryChip(
+                                    text = "SUV",
+                                    isSelected = selectedSegment == "SUV",
+                                    indicatorColor = Color(0xFFEAB308),
+                                    onClick = { selectedSegment = "SUV" }
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(spacing.md))
+
+                        Button(
+                            onClick = {
+                                val currentLoc = myLocation
+                                if (currentLoc != null && filteredVehicles.isNotEmpty()) {
+                                    val nearest = filteredVehicles
+                                        .filter { it.status == "AVAILABLE" }
+                                        .minByOrNull { vehicle ->
+                                            calculateDistance(
+                                                currentLoc.latitude, currentLoc.longitude,
+                                                vehicle.latitude, vehicle.longitude
+                                            )
+                                        }
+                                    if (nearest != null) {
+                                        vehicleViewModel.onIntent(VehicleIntent.SelectVehicle(nearest.id))
+                                    }
+                                }
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp),
+                            shape = MaterialTheme.shapes.extraLarge,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
+                            )
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                Icon(
+                                    imageVector = RenCarAppIcons.LocationPin,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(spacing.xs))
+                                Text(
+                                    text = "En Yakın Aracı Bul",
+                                    style = MaterialTheme.typography.labelLarge
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(spacing.xs))
                     }
-
-                    Spacer(modifier = Modifier.height(spacing.xs))
                 }
-            }
 
-            androidx.compose.animation.AnimatedVisibility(
-                visible = selectedVehicle != null,
-                enter = androidx.compose.animation.slideInVertically(initialOffsetY = { it }),
-                exit = androidx.compose.animation.slideOutVertically(targetOffsetY = { it })
-            ) {
-                if (selectedVehicle != null) {
-                    VehicleDetailSheet(
-                        vehicle = selectedVehicle,
-                        myLocation = myLocation,
-                        onReserveClick = {
-                            onReserveClick(selectedVehicle.id)
-                        },
-                        onUnlockClick = { /* Kilidi aç */ }
-                    )
+                androidx.compose.animation.AnimatedVisibility(
+                    visible = selectedVehicle != null,
+                    enter = androidx.compose.animation.slideInVertically(initialOffsetY = { it }),
+                    exit = androidx.compose.animation.slideOutVertically(targetOffsetY = { it })
+                ) {
+                    if (selectedVehicle != null) {
+                        VehicleDetailSheet(
+                            vehicle = selectedVehicle,
+                            myLocation = myLocation,
+                            onReserveClick = {
+                                onReserveClick(selectedVehicle.id)
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -709,7 +717,6 @@ fun VehicleDetailSheet(
     vehicle: VehicleResponseDto,
     myLocation: LatLng?,
     onReserveClick: () -> Unit,
-    onUnlockClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val spacing = LocalRencarSpacing.current
@@ -897,54 +904,21 @@ fun VehicleDetailSheet(
                 )
             }
 
-            // Buttons Column / Row
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(spacing.xs),
-                verticalAlignment = Alignment.CenterVertically
+            // Rezerve Et Button
+            Button(
+                onClick = onReserveClick,
+                modifier = Modifier
+                    .height(48.dp),
+                shape = RoundedCornerShape(100.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
             ) {
-                // Rezerve Et Button
-                OutlinedButton(
-                    onClick = onReserveClick,
-                    modifier = Modifier
-                        .height(48.dp),
-                    shape = RoundedCornerShape(100.dp),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = MaterialTheme.colorScheme.primary
-                    )
-                ) {
-                    Text(
-                        text = "Rezerve Et",
-                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
-                    )
-                }
-
-                // Kilidi Aç Button
-                Button(
-                    onClick = onUnlockClick,
-                    modifier = Modifier
-                        .height(48.dp),
-                    shape = RoundedCornerShape(100.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
-                    )
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(spacing.xxs)
-                    ) {
-                        Icon(
-                            imageVector = RenCarAppIcons.Lock,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Text(
-                            text = "Kilidi Aç",
-                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
-                        )
-                    }
-                }
+                Text(
+                    text = "Rezerve Et",
+                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+                )
             }
         }
         Spacer(modifier = Modifier.height(spacing.xs))
@@ -1007,6 +981,149 @@ private fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Do
             Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2)
     val c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
     return r * c
+}
+
+@Composable
+fun ActiveRentalMinimizedCard(
+    activeRental: com.nimetatila.rencarapp_turkcell_gygy.data.rental.ActiveRentalResponseDto,
+    onExpandClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val spacing = LocalRencarSpacing.current
+
+    // Local ticker for duration
+    var elapsedSecondsLocal by remember(activeRental) { mutableStateOf(activeRental.elapsedSeconds.toInt()) }
+
+    LaunchedEffect(activeRental.status) {
+        if (activeRental.status == "ACTIVE") {
+            while (true) {
+                kotlinx.coroutines.delay(1000)
+                elapsedSecondsLocal++
+            }
+        }
+    }
+
+    val formattedTime = remember(elapsedSecondsLocal) {
+        val hours = elapsedSecondsLocal / 3600
+        val minutes = (elapsedSecondsLocal % 3600) / 60
+        val seconds = elapsedSecondsLocal % 60
+        String.format(Locale.US, "%02d:%02d:%02d", hours, minutes, seconds)
+    }
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .shadow(
+                elevation = 16.dp,
+                shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+                clip = false
+            )
+            .background(
+                color = MaterialTheme.colorScheme.surface,
+                shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+            )
+            .padding(horizontal = spacing.md, vertical = spacing.md)
+            .clickable { onExpandClick() }
+    ) {
+        // Drag Handle
+        Box(
+            modifier = Modifier
+                .size(40.dp, 4.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+                .align(Alignment.CenterHorizontally)
+        )
+
+        Spacer(modifier = Modifier.height(spacing.sm))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // green dot
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFF22C55E))
+                )
+                Spacer(modifier = Modifier.width(spacing.xs))
+                Text(
+                    text = "Aktif Sürüş",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
+
+            Text(
+                text = activeRental.vehicle.plate,
+                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f), RoundedCornerShape(4.dp))
+                    .padding(horizontal = 6.dp, vertical = 2.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(spacing.sm))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "${activeRental.vehicle.brand} ${activeRental.vehicle.model}",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(spacing.sm)
+                ) {
+                    Text(
+                        text = "Ücret: ₺${String.format(Locale.US, "%.2f", activeRental.currentCost).replace('.', ',')}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = "·",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = "Mesafe: ${String.format(Locale.US, "%.1f km", activeRental.distanceKm).replace('.', ',')}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            Column(
+                horizontalAlignment = Alignment.End
+            ) {
+                Text(
+                    text = formattedTime,
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(spacing.xs))
+                Text(
+                    text = "Detayları Gör >",
+                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(spacing.xs))
+    }
 }
 
 @Preview(showBackground = true, name = "Light Theme")

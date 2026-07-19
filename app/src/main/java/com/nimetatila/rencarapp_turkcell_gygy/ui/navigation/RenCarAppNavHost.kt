@@ -10,22 +10,22 @@ import androidx.navigation.compose.composable
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.nimetatila.rencarapp_turkcell_gygy.ui.screens.LicenseVerificationScreen
-import com.nimetatila.rencarapp_turkcell_gygy.ui.screens.LoginScreen
-import com.nimetatila.rencarapp_turkcell_gygy.ui.screens.VerifyScreen
-import com.nimetatila.rencarapp_turkcell_gygy.ui.screens.SplashScreen
-import com.nimetatila.rencarapp_turkcell_gygy.ui.screens.RegisterScreen
-import com.nimetatila.rencarapp_turkcell_gygy.ui.screens.MainDashboardScreen
-import com.nimetatila.rencarapp_turkcell_gygy.ui.screens.SelfieVerificationScreen
-import com.nimetatila.rencarapp_turkcell_gygy.ui.screens.VehiclePhotoUploadScreen
-import com.nimetatila.rencarapp_turkcell_gygy.ui.screens.ReservationApprovalScreen
-import com.nimetatila.rencarapp_turkcell_gygy.ui.screens.ActiveRentalScreen
+import com.nimetatila.rencarapp_turkcell_gygy.ui.features.LicenseVerificationScreen
+import com.nimetatila.rencarapp_turkcell_gygy.ui.features.LoginScreen
+import com.nimetatila.rencarapp_turkcell_gygy.ui.features.VerifyScreen
+import com.nimetatila.rencarapp_turkcell_gygy.ui.features.SplashScreen
+import com.nimetatila.rencarapp_turkcell_gygy.ui.features.RegisterScreen
+import com.nimetatila.rencarapp_turkcell_gygy.ui.features.MainDashboardScreen
+import com.nimetatila.rencarapp_turkcell_gygy.ui.features.SelfieVerificationScreen
+import com.nimetatila.rencarapp_turkcell_gygy.ui.features.VehiclePhotoUploadScreen
+import com.nimetatila.rencarapp_turkcell_gygy.ui.features.ReservationApprovalScreen
+import com.nimetatila.rencarapp_turkcell_gygy.ui.features.ActiveRentalScreen
 import com.nimetatila.rencarapp_turkcell_gygy.ui.viewmodel.AuthViewModel
 import com.nimetatila.rencarapp_turkcell_gygy.ui.viewmodel.LicenseViewModel
 import com.nimetatila.rencarapp_turkcell_gygy.ui.viewmodel.ReservationViewModel
 
 sealed class Screen(val route: String) {
-    object Splash : Screen("splash")
+    object Welcome : Screen("welcome")
     object Login : Screen("login")
     object Register : Screen("register")
     object Verify : Screen("verify/{phoneNumber}") {
@@ -49,7 +49,7 @@ sealed class Screen(val route: String) {
 }
 
 @Composable
-fun RenCarAppNavHost(
+fun RenCarNavHost(
     navController: NavHostController,
     isDarkTheme: Boolean,
     onThemeToggle: () -> Unit,
@@ -61,10 +61,10 @@ fun RenCarAppNavHost(
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Splash.route,
+        startDestination = Screen.Welcome.route,
         modifier = modifier
     ) {
-        composable(Screen.Splash.route) {
+        composable(Screen.Welcome.route) {
             SplashScreen(
                 onRegisterClick = { navController.navigate(Screen.Register.route) },
                 onLoginClick = { navController.navigate(Screen.Login.route) },
@@ -77,12 +77,12 @@ fun RenCarAppNavHost(
                 onRegisterSuccess = {
                     authViewModel.resetState()
                     navController.navigate(Screen.LicenseVerification.route) {
-                        popUpTo(Screen.Splash.route)
+                        popUpTo(Screen.Welcome.route)
                     }
                 },
                 onLoginClick = {
                     navController.navigate(Screen.Login.route) {
-                        popUpTo(Screen.Splash.route)
+                        popUpTo(Screen.Welcome.route)
                     }
                 }
             )
@@ -96,7 +96,7 @@ fun RenCarAppNavHost(
                 },
                 onRegisterClick = {
                     navController.navigate(Screen.Register.route) {
-                        popUpTo(Screen.Splash.route)
+                        popUpTo(Screen.Welcome.route)
                     }
                 }
             )
@@ -115,17 +115,18 @@ fun RenCarAppNavHost(
                 onVerifySuccess = {
                     authViewModel.resetState()
                     navController.navigate(Screen.MainDashboard.route) {
-                        popUpTo(Screen.Splash.route) { inclusive = true }
+                        popUpTo(Screen.Welcome.route) { inclusive = true }
                     }
                 }
             )
         }
-        composable(Screen.MainDashboard.route) {
+        composable(Screen.MainDashboard.route) { backStackEntry ->
+            val isMinimized = backStackEntry.savedStateHandle.getStateFlow("rental_minimized", false).collectAsState().value
             MainDashboardScreen(
                 isDarkTheme = isDarkTheme,
                 onThemeToggle = onThemeToggle,
                 onLogoutClick = {
-                    navController.navigate(Screen.Splash.route) {
+                    navController.navigate(Screen.Welcome.route) {
                         popUpTo(navController.graph.startDestinationId) {
                             inclusive = true
                         }
@@ -138,9 +139,14 @@ fun RenCarAppNavHost(
                     navController.navigate(Screen.VehiclePhotoUpload.createRoute(vehicleId))
                 },
                 onActiveRentalFound = { rentalId ->
-                    navController.navigate(Screen.ActiveRental.createRoute(rentalId)) {
-                        popUpTo(Screen.MainDashboard.route) { inclusive = true }
-                    }
+                    navController.navigate(Screen.ActiveRental.createRoute(rentalId))
+                },
+                isRentalInitiallyMinimized = isMinimized,
+                onMinimizeRental = {
+                    backStackEntry.savedStateHandle["rental_minimized"] = true
+                },
+                onExpandRental = {
+                    backStackEntry.savedStateHandle["rental_minimized"] = false
                 }
             )
         }
@@ -158,7 +164,7 @@ fun RenCarAppNavHost(
                 onBackClick = { navController.popBackStack() },
                 onContinueClick = {
                     navController.navigate(Screen.MainDashboard.route) {
-                        popUpTo(Screen.Splash.route) { inclusive = true }
+                        popUpTo(Screen.Welcome.route) { inclusive = true }
                     }
                 },
                 viewModel = licenseViewModel
@@ -207,11 +213,11 @@ fun RenCarAppNavHost(
             arguments = listOf(navArgument("rentalId") { type = NavType.StringType })
         ) { backStackEntry ->
             val rentalId = backStackEntry.arguments?.getString("rentalId") ?: ""
-            com.nimetatila.rencarapp_turkcell_gygy.ui.screens.PaymentSummaryScreen(
+            com.nimetatila.rencarapp_turkcell_gygy.ui.features.PaymentSummaryScreen(
                 rentalId = rentalId,
                 onPaymentSuccess = {
                     navController.navigate(Screen.MainDashboard.route) {
-                        popUpTo(Screen.Splash.route) { inclusive = true }
+                        popUpTo(Screen.Welcome.route) { inclusive = true }
                     }
                 }
             )
@@ -224,9 +230,14 @@ fun RenCarAppNavHost(
             ActiveRentalScreen(
                 rentalId = rentalId,
                 onEndSuccess = { rId ->
+                    navController.previousBackStackEntry?.savedStateHandle?.set("rental_minimized", false)
                     navController.navigate(Screen.PaymentSummary.createRoute(rId)) {
                         popUpTo(Screen.MainDashboard.route) { inclusive = true }
                     }
+                },
+                onMinimizeClick = {
+                    navController.previousBackStackEntry?.savedStateHandle?.set("rental_minimized", true)
+                    navController.popBackStack()
                 }
             )
         }

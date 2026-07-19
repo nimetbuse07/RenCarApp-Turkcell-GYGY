@@ -1,5 +1,4 @@
 package com.nimetatila.rencarapp_turkcell_gygy.data.reservation
-
 import kotlinx.serialization.Serializable
 
 @Serializable

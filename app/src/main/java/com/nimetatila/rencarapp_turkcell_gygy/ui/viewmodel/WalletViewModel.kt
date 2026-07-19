@@ -6,9 +6,9 @@ import com.nimetatila.rencarapp_turkcell_gygy.data.wallet.WalletRepository
 import com.nimetatila.rencarapp_turkcell_gygy.data.wallet.TopupDto
 import com.nimetatila.rencarapp_turkcell_gygy.data.card.CardRepository
 import com.nimetatila.rencarapp_turkcell_gygy.data.card.CreateCardDto
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.WalletEffect
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.WalletIntent
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.WalletState
+import com.nimetatila.rencarapp_turkcell_gygy.ui.intent.WalletEffect
+import com.nimetatila.rencarapp_turkcell_gygy.ui.intent.WalletIntent
+import com.nimetatila.rencarapp_turkcell_gygy.ui.intent.WalletState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow

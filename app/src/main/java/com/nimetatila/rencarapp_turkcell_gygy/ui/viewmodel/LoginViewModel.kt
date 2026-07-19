@@ -1,12 +1,11 @@
 package com.nimetatila.rencarapp_turkcell_gygy.ui.viewmodel
 
-
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nimetatila.rencarapp_turkcell_gygy.data.auth.AuthRepository
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.LoginEffect
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.LoginIntent
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.LoginState
+import com.nimetatila.rencarapp_turkcell_gygy.ui.intent.LoginEffect
+import com.nimetatila.rencarapp_turkcell_gygy.ui.intent.LoginIntent
+import com.nimetatila.rencarapp_turkcell_gygy.ui.intent.LoginState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow

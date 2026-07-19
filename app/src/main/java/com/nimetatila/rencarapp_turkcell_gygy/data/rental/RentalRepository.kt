@@ -10,4 +10,8 @@ interface RentalRepository {
     suspend fun finishRental(id: String): Response<FinishRentalResponseDto>
     suspend fun getRentalDetails(id: String): Response<RentalResponseDto>
     suspend fun payRental(id: String, request: PayRentalDto): Response<PayRentalResponseDto>
+    suspend fun initializeIyzico(request: InitializeCheckoutFormDto): Response<CheckoutFormInitializeResponseDto>
+    suspend fun getIyzicoResult(token: String): Response<IyzicoPaymentResponseDto>
+    suspend fun getRentals(): Response<List<RentalResponseDto>>
+    suspend fun getRentalStats(month: String? = null): Response<RentalStatsResponseDto>
 }

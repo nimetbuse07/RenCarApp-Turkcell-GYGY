@@ -5,9 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nimetatila.rencarapp_turkcell_gygy.data.vehicle.VehicleRepository
 import com.nimetatila.rencarapp_turkcell_gygy.data.vehicle.VehicleResponseDto
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.VehicleEffect
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.VehicleIntent
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.VehicleState
+import com.nimetatila.rencarapp_turkcell_gygy.ui.intent.VehicleEffect
+import com.nimetatila.rencarapp_turkcell_gygy.ui.intent.VehicleIntent
+import com.nimetatila.rencarapp_turkcell_gygy.ui.intent.VehicleState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow

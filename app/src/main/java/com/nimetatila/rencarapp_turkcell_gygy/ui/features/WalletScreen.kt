@@ -1,4 +1,4 @@
-package com.nimetatila.rencarapp_turkcell_gygy.ui.screens
+package com.nimetatila.rencarapp_turkcell_gygy.ui.features
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -26,8 +26,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.nimetatila.rencarapp_turkcell_gygy.data.card.CardResponseDto
 import com.nimetatila.rencarapp_turkcell_gygy.data.wallet.WalletTransactionDto
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.WalletEffect
-import com.nimetatila.rencarapp_turkcell_gygy.ui.contract.WalletIntent
+import com.nimetatila.rencarapp_turkcell_gygy.ui.intent.WalletEffect
+import com.nimetatila.rencarapp_turkcell_gygy.ui.intent.WalletIntent
 import com.nimetatila.rencarapp_turkcell_gygy.ui.icons.RenCarAppIcons
 import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.LocalRencarSpacing
 import com.nimetatila.rencarapp_turkcell_gygy.ui.viewmodel.WalletViewModel

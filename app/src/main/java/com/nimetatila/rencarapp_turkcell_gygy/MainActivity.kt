@@ -14,9 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
-import com.nimetatila.rencarapp_turkcell_gygy.data.preferences.ThemePreferenceRepository
-import com.nimetatila.rencarapp_turkcell_gygy.ui.navigation.RenCarAppNavHost
-import com.nimetatila.rencarapp_turkcell_gygy.ui.screens.SplashScreen
+import com.nimetatila.rencarapp_turkcell_gygy.data.local.ThemePreferenceRepository
+import com.nimetatila.rencarapp_turkcell_gygy.ui.navigation.RenCarNavHost
+import com.nimetatila.rencarapp_turkcell_gygy.ui.features.SplashScreen
 import com.nimetatila.rencarapp_turkcell_gygy.ui.theme.RenCarAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -41,7 +41,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    RenCarAppNavHost(
+                    RenCarNavHost(
                         navController = navController,
                         isDarkTheme = isDarkTheme,
                         onThemeToggle = {

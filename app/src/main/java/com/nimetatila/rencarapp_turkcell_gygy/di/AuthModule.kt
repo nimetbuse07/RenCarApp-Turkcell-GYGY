@@ -1,6 +1,5 @@
 package com.nimetatila.rencarapp_turkcell_gygy.di
 
-
 import com.nimetatila.rencarapp_turkcell_gygy.data.auth.AuthRepository
 import com.nimetatila.rencarapp_turkcell_gygy.data.auth.AuthRepositoryImpl
 import com.nimetatila.rencarapp_turkcell_gygy.data.vehicle.VehicleRepository

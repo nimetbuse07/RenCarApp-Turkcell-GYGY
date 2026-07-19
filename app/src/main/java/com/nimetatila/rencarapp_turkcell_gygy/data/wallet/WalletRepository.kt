@@ -1,5 +1,4 @@
 package com.nimetatila.rencarapp_turkcell_gygy.data.wallet
-
 import retrofit2.Response
 
 interface WalletRepository {

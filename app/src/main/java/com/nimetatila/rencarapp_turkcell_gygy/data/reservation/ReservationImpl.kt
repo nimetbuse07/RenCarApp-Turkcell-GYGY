@@ -1,5 +1,4 @@
 package com.nimetatila.rencarapp_turkcell_gygy.data.reservation
-
 import javax.inject.Inject
 
 class ReservationRepositoryImpl @Inject constructor(

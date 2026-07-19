@@ -38,7 +38,43 @@ data class RentalResponseDto(
 data class PayRentalDto(
     val method: String,
     val cardId: String? = null,
-    val discountCode: String? = null
+    val discountCode: String? = null,
+    val iyzicoPaymentId: String? = null
+)
+
+@Serializable
+data class InitializeCheckoutFormDto(
+    val price: Double,
+    val description: String,
+    val basketId: String,
+    val enabledInstallments: List<Int>? = null
+)
+
+@Serializable
+data class CheckoutFormInitializeResponseDto(
+    val status: String,
+    val token: String,
+    val tokenExpireTime: Double? = null,
+    val paymentPageUrl: String,
+    val checkoutFormContent: String
+)
+
+@Serializable
+data class IyzicoPaymentResponseDto(
+    val status: String,
+    val paymentId: String,
+    val conversationId: String? = null,
+    val price: Double,
+    val paidPrice: Double,
+    val currency: String? = null,
+    val installment: Int? = null,
+    val paymentStatus: String,
+    val token: String? = null,
+    val fraudStatus: Int? = null,
+    val binNumber: String? = null,
+    val lastFourDigits: String? = null,
+    val cardType: String? = null,
+    val cardAssociation: String? = null
 )
 
 @Serializable
@@ -128,3 +164,13 @@ data class FinishRentalResponseDto(
     val usageFee: Double,
     val elapsedSeconds: Double
 )
+
+@Serializable
+data class RentalStatsResponseDto(
+    val month: String,
+    val tripCount: Int,
+    val totalSpent: Double,
+    val totalMinutes: Double,
+    val totalKm: Double
+)
+
